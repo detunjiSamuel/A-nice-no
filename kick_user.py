@@ -1,4 +1,5 @@
 import requests
+import subprocess
 from hashlib import md5
 import hmac
 import datetime as dt
@@ -14,12 +15,13 @@ class KickUser:
         self.own_mac_address = ""
         self.user_mac_address = ""
         self.cookies = ""
+        self.wlan_interface_used = ""
 
     def bounce_the_person(self):
-        self.get_user_mac()
-        print(self.user_mac_address)
-        
-
+        #self.get_user_mac()
+        #print(self.user_mac_address)
+        self.get_own_mac()
+        print(self.own_mac_address)
 
     def get_cookies(self):
         pass
@@ -43,7 +45,15 @@ class KickUser:
         
 
     def get_own_mac(self):
-        pass
+        #get the wlan interface that is used for network request with google DNS server(8.8.8.8)
+        interface_check_result = subprocess.getstatusoutput(f"ip route get 8.8.8.8 | grep -Po '(?<=dev\s)\w+' | cut -f1 -d ' '")
+        #output I received (0, 'wlo1')
+        self.wlan_interface_used = interface_check_result[1]
+        ifconfig = subprocess.check_output(["ifconfig",self.wlan_interface_used])
+        #make ifconfig a string , Got back byte array type as output 
+        mac_result = re.findall(r"\w\w:\w\w:\w\w:\w\w:\w\w:\w\w", str(ifconfig))
+        self.own_mac_address = mac_result[0]
+
 
     def change_mac(self,):
         pass
