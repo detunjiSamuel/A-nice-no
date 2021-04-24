@@ -2,6 +2,7 @@ import requests
 from hashlib import md5
 import hmac
 import datetime as dt
+import re
 
 from secrets import username, password
 
@@ -15,7 +16,15 @@ class KickUser:
         self.cookies = ""
 
     def bounce_the_person(self):
+        self.get_user_mac()
+        print(self.user_mac_address)
+        
 
+
+    def get_cookies(self):
+        pass
+
+    def get_user_mac(self):
         # encode password in right format and make bytes array
         string_encoded = md5(bytes(password,'utf-8')).hexdigest()
         # hash details before sending
@@ -27,21 +36,16 @@ class KickUser:
         #get the intruder's mac address
         headers = {'Cookie': 'PHPSESSID={0}'.format(self.cookies)}
         r = requests.get(BASE_URL , params=dict(cont='detailed_traffic_report', username=username,fromdate=dt.datetime.now().strftime('%y-%m-%d')),headers=headers)
+        #search for mac address pattern
+        all_macs =  re.findall(r'\w\w:\w\w:\w\w:\w\w:\w\w:\w\w',r.text)
+        # The logged in system is last for on the list
+        self.user_mac_address = all_macs[len(all_macs)-1]
         
-        print(r.status_code)
-        
-
-
-    def get_cookies(self):
-        pass
-
-    def get_user_mac(self):
-        pass
 
     def get_own_mac(self):
         pass
 
-    def change_mac(self):
+    def change_mac(self,):
         pass
 
     def logout_user(self):
