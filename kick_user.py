@@ -13,8 +13,8 @@ BASE_URL = 'http://radsvr2.csis.int/user.php'
 
 class KickUser:
     def __int__(self):
-        self.own_mac_address = "58:fb:84:15:9c:71"
-        self.user_mac_address = "98:2C:BC:97:6E:45"
+        self.own_mac_address = ""
+        self.user_mac_address = ""
         self.cookies = ""
         self.wlan_interface_used = ""
 
